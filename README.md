@@ -1,8 +1,7 @@
-# wacrm — CRM Template for WhatsApp
+# Flairtek WACRM
 
-> Self-hostable CRM template for WhatsApp® — shared inbox, contacts,
-> sales pipelines, broadcasts, and no-code automations. Fork it, brand
-> it, host it.
+> Flairtek WACRM — WhatsApp CRM for your business. Shared inbox, contacts,
+> sales pipelines, broadcasts, and no-code automations.
 
 <p align="center">
   <a href="https://www.hostinger.com/web-apps-hosting?REFERRALCODE=WACRMHOST">

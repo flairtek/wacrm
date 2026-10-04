@@ -192,3 +192,67 @@ describe('generateReply — Anthropic', () => {
     expect(body.messages).toHaveLength(1)
   })
 })
+
+describe('generateReply — OpenRouter', () => {
+  it('calls the chat completions endpoint and returns the reply', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      okResponse({
+        choices: [{ message: { content: 'Hello from OpenRouter!' } }],
+        usage: { prompt_tokens: 25, completion_tokens: 10, total_tokens: 35 },
+      }),
+    )
+    vi.stubGlobal('fetch', fetchMock)
+
+    const res = await generateReply({
+      config: config({ provider: 'openrouter', apiKey: 'sk-or-v1-test' }),
+      systemPrompt: 'sys',
+      messages: [{ role: 'user', content: 'Hi' }],
+    })
+
+    expect(res).toEqual({
+      text: 'Hello from OpenRouter!',
+      handoff: false,
+      usage: { promptTokens: 25, completionTokens: 10, totalTokens: 35 },
+    })
+    const [url, opts] = fetchMock.mock.calls[0]
+    expect(url).toContain('openrouter.ai')
+    expect(opts.headers.Authorization).toBe('Bearer sk-or-v1-test')
+  })
+
+  it('maps a 401 to an invalid_key AiError', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        errResponse(401, { error: { message: 'Invalid API Key' } }),
+      ),
+    )
+
+    await expect(
+      generateReply({
+        config: config({ provider: 'openrouter' }),
+        systemPrompt: 'sys',
+        messages: [{ role: 'user', content: 'Hi' }],
+      }),
+    ).rejects.toMatchObject({ code: 'invalid_key', status: 401 })
+  })
+
+  it('detects handoff sentinel in OpenRouter output', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        okResponse({
+          choices: [{ message: { content: 'Connecting you to support [[HANDOFF]]' } }],
+        }),
+      ),
+    )
+    const res = await generateReply({
+      config: config({ provider: 'openrouter' }),
+      systemPrompt: 'sys',
+      messages: [{ role: 'user', content: 'Help please' }],
+    })
+
+    expect(res.handoff).toBe(true)
+    expect(res.text).toBe('Connecting you to support')
+  })
+})
+

@@ -53,6 +53,8 @@ export class MetaApiError extends Error {
   readonly type: string | null
   readonly fbtraceId: string | null
   readonly httpStatus: number
+  readonly userTitle: string | null
+  readonly userMessage: string | null
   /** `error.error_data.details` — WhatsApp endpoints put the useful text here. */
   readonly details: string | null
 
@@ -64,6 +66,8 @@ export class MetaApiError extends Error {
       type?: string | null
       fbtraceId?: string | null
       httpStatus: number
+      userTitle?: string | null
+      userMessage?: string | null
       details?: string | null
     },
   ) {
@@ -74,7 +78,24 @@ export class MetaApiError extends Error {
     this.type = fields.type ?? null
     this.fbtraceId = fields.fbtraceId ?? null
     this.httpStatus = fields.httpStatus
+    this.userTitle = fields.userTitle ?? null
+    this.userMessage = fields.userMessage ?? null
     this.details = fields.details ?? null
+  }
+}
+
+interface MetaErrorEnvelope {
+  error?: {
+    message?: string
+    type?: string
+    code?: number
+    error_subcode?: number
+    error_user_title?: string
+    error_user_msg?: string
+    fbtrace_id?: string
+    error_data?: {
+      details?: string
+    }
   }
 }
 
@@ -84,11 +105,15 @@ export class MetaApiError extends Error {
  */
 async function readMetaError(response: Response, fallback: string): Promise<MetaApiError> {
   let message = fallback
-  let envelope: MetaErrorResponse['error'] | undefined
+  let envelope: MetaErrorEnvelope['error'] | undefined
   try {
-    const data = (await response.json()) as MetaErrorResponse
+    const data = (await response.json()) as MetaErrorEnvelope
     envelope = data.error
-    if (envelope?.message) message = envelope.message
+    if (envelope?.error_user_msg) {
+      message = envelope.error_user_msg
+    } else if (envelope?.message) {
+      message = envelope.message
+    }
   } catch {
     // response body wasn't JSON — keep the fallback
   }
@@ -98,6 +123,8 @@ async function readMetaError(response: Response, fallback: string): Promise<Meta
     type: envelope?.type ?? null,
     fbtraceId: envelope?.fbtrace_id ?? null,
     httpStatus: response.status,
+    userTitle: envelope?.error_user_title ?? null,
+    userMessage: envelope?.error_user_msg ?? null,
     details: envelope?.error_data?.details ?? null,
   })
 }
@@ -777,7 +804,20 @@ export async function deleteMessageTemplate(
   // side, and we still want the local row removed.
   if (response.status === 404) return
   if (!response.ok) {
-    await throwMetaError(response, `Meta API error: ${response.status}`)
+    const error = await readMetaError(response, `Meta API error: ${response.status}`)
+    // Meta returns HTTP 400 with subcode 2593002 when the template does not exist
+    // on the WABA account (or was already deleted on Meta, or is an immutable system template).
+    // Treat as a no-op so local row is removed cleanly.
+    if (
+      error.subcode === 2593002 ||
+      error.userTitle?.toLowerCase().includes('not found') ||
+      error.userMessage?.toLowerCase().includes('not found') ||
+      error.message?.toLowerCase().includes('not found') ||
+      (error.details && error.details.toLowerCase().includes('not found'))
+    ) {
+      return
+    }
+    throw error
   }
 }
 

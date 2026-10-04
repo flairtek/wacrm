@@ -208,7 +208,30 @@ describe('deleteMessageTemplate', () => {
     ).resolves.toBeUndefined();
   });
 
-  it('throws on non-404 errors', async () => {
+  it('treats Meta 400 with subcode 2593002 (Message Template Not Found) as a no-op', async () => {
+    fetchMock.mockResolvedValueOnce(
+      errorResponse(400, {
+        error: {
+          message: 'Invalid parameter',
+          type: 'OAuthException',
+          code: 100,
+          error_subcode: 2593002,
+          error_user_title: 'Message Template Not Found',
+          error_user_msg: "The message template hello_world wasn't found for this account.",
+        },
+      }),
+    );
+    await expect(
+      deleteMessageTemplate({
+        wabaId: 'W',
+        accessToken: 't',
+        name: 'hello_world',
+        metaTemplateId: '913476078273162',
+      }),
+    ).resolves.toBeUndefined();
+  });
+
+  it('throws on non-404 other errors', async () => {
     fetchMock.mockResolvedValueOnce(
       errorResponse(500, { error: { message: 'boom' } }),
     );

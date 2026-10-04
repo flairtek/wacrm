@@ -84,14 +84,36 @@ describe("dedupeByPhone", () => {
 describe("findExistingContact", () => {
   // Minimal SupabaseClient stub: resolves the .from().select().eq().like()
   // chain to a fixed candidate set.
-  function stubDb(rows: Array<{ id: string; phone: string }>): SupabaseClient {
+  function stubDb(
+    rows: Array<{ id: string; phone: string }>,
+    onLike?: (column: string, pattern: string) => void
+  ): SupabaseClient {
     const builder = {
       select: () => builder,
       eq: () => builder,
-      like: () => Promise.resolve({ data: rows, error: null }),
+      like: (column: string, pattern: string) => {
+        onLike?.(column, pattern);
+        return Promise.resolve({ data: rows, error: null });
+      },
     };
     return { from: () => builder } as unknown as SupabaseClient;
   }
+
+  it("queries phone_normalized using the suffix and matches formatted contacts", async () => {
+    let queriedCol = "";
+    let queriedPattern = "";
+    const db = stubDb(
+      [{ id: "c1", phone: "+966 54 307 9971" }],
+      (col, pat) => {
+        queriedCol = col;
+        queriedPattern = pat;
+      }
+    );
+    const hit = await findExistingContact(db, "acct", "966543079971");
+    expect(queriedCol).toBe("phone_normalized");
+    expect(queriedPattern).toBe("%43079971");
+    expect(hit?.id).toBe("c1");
+  });
 
   it("returns a trunk-variant match via phonesMatch", async () => {
     const db = stubDb([{ id: "c1", phone: "37063949836" }]);

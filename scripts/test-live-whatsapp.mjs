@@ -137,7 +137,12 @@ async function runTest() {
       const textArg = process.argv.find(
         (arg) => arg.startsWith('--msg=') || arg.startsWith('--text=') || arg.startsWith('--message=')
       );
+      const templateArg = process.argv.find((arg) => arg.startsWith('--template=') || arg.startsWith('--tmpl='));
+      const langArg = process.argv.find((arg) => arg.startsWith('--lang=') || arg.startsWith('--language='));
+
       const customText = textArg ? textArg.substring(textArg.indexOf('=') + 1).trim() : null;
+      const templateName = templateArg ? templateArg.substring(templateArg.indexOf('=') + 1).trim() : 'test';
+      const templateLang = langArg ? langArg.substring(langArg.indexOf('=') + 1).trim() : 'en_US';
 
       if (recipientArg) {
         const recipient = recipientArg.split('=')[1].trim().replace(/^\+/, '');
@@ -145,7 +150,7 @@ async function runTest() {
 
         let sendData = null;
         let sentType = 'template';
-        let messageText = customText || 'hello_world';
+        let messageText = customText || templateName;
 
         if (customText) {
           console.log(`  Sending custom text message: "${customText}"...`);
@@ -178,7 +183,7 @@ async function runTest() {
             }
           }
         } else {
-          console.log(`  Sending template message ("hello_world")...`);
+          console.log(`  Sending template message ("${templateName}", lang: "${templateLang}")...`);
           const sendRes = await fetch(
             `https://graph.facebook.com/${META_API_VERSION}/${cfg.phone_number_id}/messages`,
             {
@@ -192,8 +197,8 @@ async function runTest() {
                 to: recipient,
                 type: 'template',
                 template: {
-                  name: 'hello_world',
-                  language: { code: 'en_US' },
+                  name: templateName,
+                  language: { code: templateLang },
                 },
               }),
             }
@@ -219,7 +224,7 @@ async function runTest() {
               .from('contacts')
               .select('id, phone, name')
               .eq('account_id', cfg.account_id)
-              .or(`phone.eq.+${recipient},phone.eq.${recipient}`)
+              .or(`phone.eq.+${recipient},phone.eq.${recipient},phone_normalized.eq.${recipient}`)
               .limit(1)
               .maybeSingle();
 
@@ -229,6 +234,7 @@ async function runTest() {
                 .insert({
                   account_id: cfg.account_id,
                   phone: `+${recipient}`,
+                  phone_normalized: recipient,
                   name: `Contact +${recipient}`,
                 })
                 .select('id, phone, name')
@@ -253,7 +259,7 @@ async function runTest() {
                     account_id: cfg.account_id,
                     contact_id: contact.id,
                     status: 'open',
-                    last_message_text: customText || 'Template: hello_world',
+                    last_message_text: customText || `Template: ${templateName}`,
                     last_message_at: new Date().toISOString(),
                   })
                   .select('id')
@@ -263,7 +269,7 @@ async function runTest() {
                 await supabase
                   .from('conversations')
                   .update({
-                    last_message_text: customText || 'Template: hello_world',
+                    last_message_text: customText || `Template: ${templateName}`,
                     last_message_at: new Date().toISOString(),
                   })
                   .eq('id', conv.id);
@@ -276,8 +282,8 @@ async function runTest() {
                     conversation_id: conv.id,
                     sender_type: 'agent',
                     content_type: sentType,
-                    content_text: customText || (sentType === 'template' ? 'hello_world' : ''),
-                    template_name: sentType === 'template' ? 'hello_world' : null,
+                    content_text: customText || (sentType === 'template' ? `Template: ${templateName}` : ''),
+                    template_name: sentType === 'template' ? templateName : null,
                     status: 'sent',
                     message_id: wamid,
                   });

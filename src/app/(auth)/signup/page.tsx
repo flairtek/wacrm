@@ -64,11 +64,11 @@ function SignupPageInner() {
 
     // If we have an invite token, point Supabase's verification
     // email back at the join page so the user can accept after
-    // verifying. Without a token, Supabase uses its default
-    // redirect (the app root).
+    // verifying. Otherwise point at /auth/callback to establish the session
+    // and redirect to /dashboard dynamically using current window.location.origin.
     const emailRedirectTo = inviteToken
       ? `${window.location.origin}/join/${encodeURIComponent(inviteToken)}`
-      : undefined;
+      : `${window.location.origin}/auth/callback?next=/dashboard`;
 
     const { error } = await supabase.auth.signUp({
       email,
@@ -77,7 +77,7 @@ function SignupPageInner() {
         data: {
           full_name: fullName,
         },
-        ...(emailRedirectTo ? { emailRedirectTo } : {}),
+        emailRedirectTo,
       },
     });
 

@@ -48,6 +48,12 @@
   --color-primary-hover: var(--primary-hover);
   --color-primary-soft: var(--primary-soft);
   --color-primary-soft-2: var(--primary-soft-2);
+  --color-status-success: var(--status-success);
+  --color-status-warning: var(--status-warning);
+  --color-status-info: var(--status-info);
+  --color-status-error: var(--status-error);
+  --color-status-ai: var(--status-ai);
+  --color-surface-elevated: var(--surface-elevated);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -114,6 +120,13 @@ html[data-mode="dark"] {
   --sidebar-accent: oklch(0.22 0.01 260);
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(0.28 0.01 260);
+  /* Status & Elevated Tokens */
+  --status-success: oklch(0.68 0.18 145);
+  --status-warning: oklch(0.75 0.16 75);
+  --status-info: oklch(0.65 0.18 240);
+  --status-error: oklch(0.60 0.22 25);
+  --status-ai: oklch(0.70 0.22 300);
+  --surface-elevated: oklch(0.21 0.01 260);
 }
 
 html[data-mode="light"] {
@@ -143,6 +156,13 @@ html[data-mode="light"] {
   --sidebar-accent: oklch(0.96 0.004 260);
   --sidebar-accent-foreground: oklch(0.25 0.01 260);
   --sidebar-border: oklch(0.922 0.004 260);
+  /* Status & Elevated Tokens */
+  --status-success: oklch(0.62 0.18 145);
+  --status-warning: oklch(0.70 0.16 75);
+  --status-info: oklch(0.58 0.18 240);
+  --status-error: oklch(0.55 0.22 25);
+  --status-ai: oklch(0.62 0.22 300);
+  --surface-elevated: oklch(0.97 0.003 260);
 }
 
 /* ---- ACCENT: primary color ---- */

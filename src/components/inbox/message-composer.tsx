@@ -536,9 +536,9 @@ export function MessageComposer({
   // ---- Render --------------------------------------------------------
 
   return (
-    <div className="border-t border-border bg-card p-3">
+    <div className="border-t border-border/80 bg-card/95 backdrop-blur-xs p-3.5 shadow-xs">
       {replyTo && (
-        <div className="mb-2">
+        <div className="mb-2.5">
           <ReplyQuote
             authorLabel={replyTo.authorLabel}
             preview={replyTo.preview}
@@ -547,17 +547,17 @@ export function MessageComposer({
         </div>
       )}
       {sessionExpired && (
-        <div className="mb-2 flex items-center justify-between rounded-lg bg-amber-500/10 px-3 py-2">
-          <p className="text-xs text-amber-400">
+        <div className="mb-2.5 flex items-center justify-between rounded-xl border border-status-warning/30 bg-status-warning/10 px-3.5 py-2">
+          <p className="text-xs font-medium text-status-warning">
             {t("sessionExpiredHint")}
           </p>
           <Button
             variant="ghost"
             size="sm"
-            className="h-7 text-xs text-amber-400 hover:text-amber-300"
+            className="h-7 rounded-lg text-xs font-semibold text-status-warning hover:bg-status-warning/20 hover:text-status-warning"
             onClick={onOpenTemplates}
           >
-            <LayoutTemplate className="mr-1 h-3 w-3" />
+            <LayoutTemplate className="mr-1.5 h-3.5 w-3.5" />
             {t("templates")}
           </Button>
         </div>
@@ -607,29 +607,29 @@ export function MessageComposer({
         />
       ) : recording ? (
         // Recording bar — replaces the composer while the mic is live.
-        <div className="flex items-center gap-3 rounded-xl border border-border bg-muted px-4 py-2.5">
-          <span className="flex h-2.5 w-2.5 shrink-0 animate-pulse rounded-full bg-red-500" />
-          <span className="flex-1 text-sm text-foreground">
+        <div className="flex items-center gap-3 rounded-xl border border-status-error/30 bg-status-error/5 px-4 py-2.5 shadow-2xs">
+          <span className="flex h-2.5 w-2.5 shrink-0 animate-pulse rounded-full bg-status-error ring-4 ring-status-error/20" />
+          <span className="flex-1 text-sm font-medium text-foreground">
             {t("recording", { current: formatDuration(recordSeconds), max: formatDuration(MAX_RECORDING_SECONDS) })}
           </span>
           <button
             type="button"
             onClick={cancelRecording}
-            className="rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-card hover:text-foreground"
+            className="rounded-lg px-2.5 py-1 text-xs font-semibold text-muted-foreground hover:bg-card hover:text-foreground transition-colors"
           >
             {t("cancel")}
           </button>
           <Button
             size="sm"
             onClick={stopRecording}
-            className="h-9 w-9 shrink-0 bg-primary p-0 hover:bg-primary/90"
+            className="h-9 w-9 shrink-0 rounded-xl bg-status-error p-0 text-white shadow-2xs hover:bg-status-error/90"
             title={t("stopAndAttach")}
           >
             <Square className="h-4 w-4" />
           </Button>
         </div>
       ) : (
-        <div className="flex items-end gap-2">
+        <div className="flex items-end gap-1.5 sm:gap-2">
           {/* Attach menu — photo / video / document / voice. */}
           <DropdownMenu>
             <DropdownMenuTrigger
@@ -641,7 +641,7 @@ export function MessageComposer({
                     ? undefined
                     : t("attachMedia")
               }
-              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md p-0 text-muted-foreground hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl p-0 text-muted-foreground hover:bg-muted/70 hover:text-foreground transition-colors disabled:cursor-not-allowed disabled:opacity-50"
             >
               {busy ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -649,21 +649,21 @@ export function MessageComposer({
                 <Paperclip className="h-4 w-4" />
               )}
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="border-border bg-popover">
-              <DropdownMenuItem onClick={() => imageInputRef.current?.click()}>
-                <ImageIcon className="mr-2 h-4 w-4" />
+            <DropdownMenuContent align="start" className="border-border/80 bg-popover shadow-md">
+              <DropdownMenuItem onClick={() => imageInputRef.current?.click()} className="cursor-pointer">
+                <ImageIcon className="mr-2 h-4 w-4 text-muted-foreground" />
                 {t("photo")}
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => videoInputRef.current?.click()}>
-                <Video className="mr-2 h-4 w-4" />
+              <DropdownMenuItem onClick={() => videoInputRef.current?.click()} className="cursor-pointer">
+                <Video className="mr-2 h-4 w-4 text-muted-foreground" />
                 {t("video")}
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => documentInputRef.current?.click()}>
-                <FileText className="mr-2 h-4 w-4" />
+              <DropdownMenuItem onClick={() => documentInputRef.current?.click()} className="cursor-pointer">
+                <FileText className="mr-2 h-4 w-4 text-muted-foreground" />
                 {t("document")}
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => void startRecording()}>
-                <Mic className="mr-2 h-4 w-4" />
+              <DropdownMenuItem onClick={() => void startRecording()} className="cursor-pointer">
+                <Mic className="mr-2 h-4 w-4 text-muted-foreground" />
                 {t("voiceNote")}
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -681,17 +681,17 @@ export function MessageComposer({
                     ? undefined
                     : t("moreActions")
               }
-              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md p-0 text-muted-foreground hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl p-0 text-muted-foreground hover:bg-muted/70 hover:text-foreground transition-colors disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Plus className="h-4 w-4" />
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="border-border bg-popover">
-              <DropdownMenuItem onClick={() => openInteractiveBuilder()}>
-                <MessageSquareDashed className="mr-2 h-4 w-4" />
+            <DropdownMenuContent align="start" className="border-border/80 bg-popover shadow-md">
+              <DropdownMenuItem onClick={() => openInteractiveBuilder()} className="cursor-pointer">
+                <MessageSquareDashed className="mr-2 h-4 w-4 text-muted-foreground" />
                 {t("interactiveMessage")}
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setQuickReplyOpen(true)}>
-                <Zap className="mr-2 h-4 w-4" />
+              <DropdownMenuItem onClick={() => setQuickReplyOpen(true)} className="cursor-pointer">
+                <Zap className="mr-2 h-4 w-4 text-muted-foreground" />
                 {t("quickReplies")}
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -703,7 +703,7 @@ export function MessageComposer({
             canAct={!readOnly}
             gateReason="send messages"
             title={readOnly ? undefined : t("sendTemplate")}
-            className="h-9 w-9 shrink-0 p-0 text-muted-foreground hover:text-foreground"
+            className="h-9 w-9 shrink-0 rounded-xl p-0 text-muted-foreground hover:bg-muted/70 hover:text-foreground"
             onClick={onOpenTemplates}
           >
             <LayoutTemplate className="h-4 w-4" />
@@ -716,7 +716,7 @@ export function MessageComposer({
             gateReason="send messages"
             disabled={drafting}
             title={readOnly ? undefined : t("draftWithAI")}
-            className="h-9 w-9 shrink-0 p-0 text-muted-foreground hover:text-primary"
+            className="h-9 w-9 shrink-0 rounded-xl p-0 text-muted-foreground hover:bg-status-ai/15 hover:text-status-ai transition-colors"
             onClick={handleDraft}
           >
             {drafting ? (
@@ -745,7 +745,7 @@ export function MessageComposer({
             // The placeholder text also surfaces the read-only state.
             title={readOnly ? t("readOnlyTitle") : undefined}
             className={cn(
-              "flex-1 resize-none rounded-xl border border-border bg-muted px-4 py-2.5 text-sm text-foreground placeholder-muted-foreground outline-none transition-colors focus:border-primary/50",
+              "flex-1 resize-none rounded-xl border border-border/80 bg-muted/40 px-4 py-2.5 text-sm text-foreground placeholder-muted-foreground outline-none transition-all focus:border-primary/50 focus:bg-background focus:ring-1 focus:ring-primary/20",
               (sessionExpired || readOnly) && "cursor-not-allowed opacity-50"
             )}
           />
@@ -756,7 +756,7 @@ export function MessageComposer({
             gateReason="send messages"
             disabled={!text.trim() || sessionExpired || sending}
             onClick={handleSend}
-            className="h-9 w-9 shrink-0 bg-primary p-0 hover:bg-primary/90 disabled:opacity-40"
+            className="h-9 w-9 shrink-0 rounded-xl bg-primary p-0 text-primary-foreground shadow-2xs hover:bg-primary/90 disabled:opacity-40"
           >
             <Send className="h-4 w-4" />
           </GatedButton>

@@ -32,19 +32,19 @@ export function ReplyQuote({
   return (
     <div
       className={cn(
-        "flex items-start gap-2 border-l-2 px-2 py-1",
-        onPrimary ? "border-primary-foreground/50" : "border-primary",
+        "flex items-start gap-2.5 border-l-[3px] px-2.5 py-1.5 transition-colors",
+        onPrimary ? "border-primary-foreground/70" : "border-primary",
         isChip
-          ? "rounded-md bg-muted/80"
+          ? "rounded-r-lg border-y border-r border-y-border/50 border-r-border/50 bg-muted/90 shadow-2xs"
           : onPrimary
-            ? "mb-1.5 rounded-md bg-primary-foreground/15"
-            : "mb-1.5 rounded-md bg-background/20",
+            ? "mb-1.5 rounded-r-lg bg-primary-foreground/15 text-primary-foreground"
+            : "mb-1.5 rounded-r-lg bg-background/50 text-foreground",
       )}
     >
       <div className="min-w-0 flex-1 overflow-hidden">
         <div
           className={cn(
-            "truncate text-[11px] font-medium",
+            "truncate text-[11px] font-semibold tracking-tight",
             onPrimary ? "text-primary-foreground" : "text-primary",
           )}
         >
@@ -57,7 +57,12 @@ export function ReplyQuote({
          *  layout wider, shoving the contact sidebar off-screen.
          *  `break-words` also wraps long URLs that have no whitespace
          *  to break on. Issue #165. */}
-        <div className="whitespace-pre-wrap break-words text-xs text-foreground/80">
+        <div
+          className={cn(
+            "whitespace-pre-wrap break-words text-xs line-clamp-2",
+            onPrimary ? "text-primary-foreground/90" : "text-foreground/85",
+          )}
+        >
           {preview}
         </div>
       </div>
@@ -66,7 +71,7 @@ export function ReplyQuote({
           type="button"
           onClick={onDismiss}
           aria-label={t("cancelReply")}
-          className="flex h-6 w-6 shrink-0 items-center justify-center rounded text-muted-foreground hover:bg-muted hover:text-foreground"
+          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
         >
           <X className="h-3.5 w-3.5" />
         </button>

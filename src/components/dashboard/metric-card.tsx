@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowUp, Minus } from 'lucide-react'
+import { ArrowDownRight, ArrowUpRight, Minus } from 'lucide-react'
 import type { ComponentType } from 'react'
 import { cn } from '@/lib/utils'
 
@@ -23,34 +23,40 @@ interface MetricCardProps {
 
 export function MetricCard({ title, value, icon: Icon, delta, subtitle }: MetricCardProps) {
   return (
-    <div className="rounded-xl border border-border bg-card p-5">
-      <div className="flex items-start justify-between">
-        <p className="text-sm font-medium text-muted-foreground">{title}</p>
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+    <div className="group relative overflow-hidden rounded-2xl border border-border bg-card/90 p-5 shadow-xs backdrop-blur-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/20 hover:shadow-md">
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{title}</p>
+        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/10 transition-colors group-hover:bg-primary/15">
           <Icon className="h-4 w-4" />
         </div>
       </div>
-      <p className="mt-3 text-[28px] leading-none font-bold tabular-nums text-foreground">
+      <p className="mt-3 text-2xl font-bold tracking-tight text-foreground tabular-nums sm:text-3xl">
         {value}
       </p>
-      {delta ? <DeltaRow sign={delta.sign} label={delta.label} /> : subtitle ? (
-        <p className="mt-2 text-sm text-muted-foreground">{subtitle}</p>
+      {delta ? (
+        <DeltaRow sign={delta.sign} label={delta.label} />
+      ) : subtitle ? (
+        <p className="mt-2 text-xs font-medium text-muted-foreground">{subtitle}</p>
       ) : null}
     </div>
   )
 }
 
 function DeltaRow({ sign, label }: { sign: number; label: string }) {
-  const tone =
-    sign > 0
-      ? 'text-primary'
-      : sign < 0
-      ? 'text-red-400'
-      : 'text-muted-foreground'
-  const Arrow = sign > 0 ? ArrowUp : sign < 0 ? ArrowDown : Minus
+  const isPositive = sign > 0
+  const isNegative = sign < 0
+  const Arrow = isPositive ? ArrowUpRight : isNegative ? ArrowDownRight : Minus
+
   return (
-    <div className={cn('mt-2 flex items-center gap-1 text-sm', tone)}>
-      <Arrow className="h-4 w-4" aria-hidden />
+    <div
+      className={cn(
+        'mt-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold border',
+        isPositive && 'border-status-success/30 bg-status-success/15 text-status-success',
+        isNegative && 'border-status-error/30 bg-status-error/15 text-status-error',
+        !isPositive && !isNegative && 'border-border bg-muted/50 text-muted-foreground'
+      )}
+    >
+      <Arrow className="h-3.5 w-3.5" aria-hidden />
       <span className="tabular-nums">{label}</span>
     </div>
   )

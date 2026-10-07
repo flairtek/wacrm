@@ -37,9 +37,9 @@ interface ConversationListProps {
 }
 
 const STATUS_COLORS: Record<ConversationStatus, string> = {
-  open: "bg-primary",
-  pending: "bg-amber-500",
-  closed: "bg-muted-foreground",
+  open: "bg-status-success ring-1 ring-status-success/30",
+  pending: "bg-status-warning ring-1 ring-status-warning/30",
+  closed: "bg-muted-foreground/50",
 };
 
 
@@ -223,38 +223,39 @@ export function ConversationList({
     // w-full on mobile so the list occupies the whole viewport when it's
     // the single pane showing; fixed 320px on desktop where it shares the
     // row with the thread + contact sidebar.
-    <div className="flex h-full w-full flex-col border-r border-border bg-card lg:w-80">
-      {/* Search + Filter */}
-      <div className="space-y-2 border-b border-border p-3">
+    <div className="flex h-full w-full flex-col border-r border-border bg-card lg:w-80 select-none">
+      {/* Search + Filter Header */}
+      <div className="space-y-2.5 border-b border-border p-3 bg-card/80 backdrop-blur-xs">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={search}
             onChange={handleSearchChange}
             placeholder={t("searchPlaceholder")}
-            className="border-border bg-muted pl-9 text-sm text-foreground placeholder-muted-foreground focus:border-primary/50"
+            className="h-9 rounded-xl border-border/80 bg-muted/50 pl-8.5 text-xs text-foreground placeholder-muted-foreground transition-all focus:border-primary/50 focus:bg-background focus:ring-1 focus:ring-primary/20"
           />
         </div>
 
-        <div className="flex flex-wrap items-center gap-1">
+        {/* Status Pill Tabs & Dropdown Filters */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 no-scrollbar">
           <DropdownMenu>
-            <DropdownMenuTrigger className="inline-flex items-center justify-center h-7 gap-1 px-2 text-xs text-muted-foreground hover:text-foreground rounded-md hover:bg-muted">
-                {activeFilter?.label ?? t("filterAll")}
-                <ChevronDown className="h-3 w-3" />
+            <DropdownMenuTrigger className="inline-flex h-7 items-center justify-center gap-1 rounded-lg border border-border/70 bg-muted/40 px-2 text-[11px] font-medium text-foreground transition-all hover:bg-muted/80 shadow-2xs">
+              <span>{activeFilter?.label ?? t("filterAll")}</span>
+              <ChevronDown className="h-3 w-3 text-muted-foreground" />
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="start"
-              className="border-border bg-popover"
+              className="w-36 rounded-xl border-border bg-popover shadow-md"
             >
               {FILTER_OPTIONS.map((opt) => (
                 <DropdownMenuItem
                   key={opt.value}
                   onClick={() => setFilter(opt.value)}
                   className={cn(
-                    "text-sm",
+                    "text-xs font-medium cursor-pointer rounded-lg",
                     filter === opt.value
-                      ? "text-primary"
-                      : "text-popover-foreground"
+                      ? "bg-primary/10 text-primary font-semibold"
+                      : "text-popover-foreground hover:bg-muted"
                   )}
                 >
                   {opt.label}
@@ -267,15 +268,15 @@ export function ConversationList({
             <DropdownMenu>
               <DropdownMenuTrigger
                 className={cn(
-                  "inline-flex items-center justify-center h-7 gap-1 px-2 text-xs rounded-md hover:bg-muted",
+                  "inline-flex h-7 items-center justify-center gap-1 rounded-lg border px-2 text-[11px] font-medium transition-all shadow-2xs",
                   selectedTagIds.length > 0
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "border-primary/40 bg-primary/10 text-primary"
+                    : "border-border/70 bg-muted/40 text-muted-foreground hover:bg-muted/80 hover:text-foreground"
                 )}
               >
-                {t("tags")}
+                <span>{t("tags")}</span>
                 {selectedTagIds.length > 0 && (
-                  <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+                  <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[9px] font-bold text-primary-foreground">
                     {selectedTagIds.length}
                   </span>
                 )}
@@ -283,14 +284,14 @@ export function ConversationList({
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="start"
-                className="max-h-64 w-56 border-border bg-popover"
+                className="max-h-64 w-56 rounded-xl border-border bg-popover shadow-md"
               >
                 {tags.map((t) => (
                   <DropdownMenuCheckboxItem
                     key={t.id}
                     checked={selectedTagIds.includes(t.id)}
                     onCheckedChange={() => toggleTag(t.id)}
-                    className="text-sm text-popover-foreground"
+                    className="text-xs text-popover-foreground cursor-pointer rounded-lg"
                   >
                     <span className="flex items-center gap-2">
                       <span
@@ -309,10 +310,10 @@ export function ConversationList({
             <DropdownMenu>
               <DropdownMenuTrigger
                 className={cn(
-                  "inline-flex max-w-40 items-center justify-center h-7 gap-1 px-2 text-xs rounded-md hover:bg-muted",
+                  "inline-flex h-7 max-w-36 items-center justify-center gap-1 rounded-lg border px-2 text-[11px] font-medium transition-all shadow-2xs",
                   selectedCompany
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "border-primary/40 bg-primary/10 text-primary"
+                    : "border-border/70 bg-muted/40 text-muted-foreground hover:bg-muted/80 hover:text-foreground"
                 )}
               >
                 <span className="truncate">{selectedCompany ?? t("company")}</span>
@@ -320,15 +321,15 @@ export function ConversationList({
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="start"
-                className="max-h-64 w-56 border-border bg-popover"
+                className="max-h-64 w-56 rounded-xl border-border bg-popover shadow-md"
               >
                 <DropdownMenuItem
                   onClick={() => setSelectedCompany(null)}
                   className={cn(
-                    "text-sm",
+                    "text-xs font-medium cursor-pointer rounded-lg",
                     selectedCompany === null
-                      ? "text-primary"
-                      : "text-popover-foreground"
+                      ? "bg-primary/10 text-primary font-semibold"
+                      : "text-popover-foreground hover:bg-muted"
                   )}
                 >
                   {t("allCompanies")}
@@ -338,10 +339,10 @@ export function ConversationList({
                     key={co}
                     onClick={() => setSelectedCompany(co)}
                     className={cn(
-                      "text-sm",
+                      "text-xs font-medium cursor-pointer rounded-lg",
                       selectedCompany === co
-                        ? "text-primary"
-                        : "text-popover-foreground"
+                        ? "bg-primary/10 text-primary font-semibold"
+                        : "text-popover-foreground hover:bg-muted"
                     )}
                   >
                     <span className="truncate">{co}</span>
@@ -353,36 +354,36 @@ export function ConversationList({
         </div>
 
         {hasContactFilters && (
-          <div className="flex flex-wrap items-center gap-1">
+          <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
             {selectedTagIds.map((id) => {
               const tag = tagsById.get(id);
               return (
                 <button
                   key={id}
                   onClick={() => toggleTag(id)}
-                  className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[11px] text-foreground hover:bg-muted/70"
+                  className="inline-flex items-center gap-1 rounded-md border border-border/80 bg-muted/70 px-2 py-0.5 text-[10px] font-medium text-foreground transition-colors hover:bg-muted"
                 >
                   <span
                     className="h-1.5 w-1.5 shrink-0 rounded-full"
                     style={{ backgroundColor: tag?.color ?? "var(--muted-foreground)" }}
                   />
                   <span className="max-w-24 truncate">{tag?.name ?? t("tags")}</span>
-                  <X className="h-3 w-3" />
+                  <X className="h-3 w-3 text-muted-foreground" />
                 </button>
               );
             })}
             {selectedCompany && (
               <button
                 onClick={() => setSelectedCompany(null)}
-                className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[11px] text-foreground hover:bg-muted/70"
+                className="inline-flex items-center gap-1 rounded-md border border-border/80 bg-muted/70 px-2 py-0.5 text-[10px] font-medium text-foreground transition-colors hover:bg-muted"
               >
                 <span className="max-w-24 truncate">{selectedCompany}</span>
-                <X className="h-3 w-3" />
+                <X className="h-3 w-3 text-muted-foreground" />
               </button>
             )}
             <button
               onClick={clearContactFilters}
-              className="px-1 text-[11px] text-muted-foreground hover:text-foreground"
+              className="px-1 text-[10px] font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
               {t("clearAll")}
             </button>
@@ -390,23 +391,18 @@ export function ConversationList({
         )}
       </div>
 
-      {/* Conversation Items.
-          `min-h-0` is load-bearing: a flex child defaults to
-          min-height:auto, so without it this ScrollArea grows to fit
-          every conversation instead of shrinking to the remaining
-          space — the list then overflows and gets clipped by the
-          parent's overflow-hidden with no scrollbar (issue #229). */}
+      {/* Conversation Items */}
       <ScrollArea className="min-h-0 flex-1">
         {loading ? (
-          <div className="flex items-center justify-center py-12">
+          <div className="flex items-center justify-center py-16">
             <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
           </div>
         ) : filtered.length === 0 ? (
-          <div className="px-4 py-12 text-center">
-            <p className="text-sm text-muted-foreground">{t("noConversations")}</p>
+          <div className="flex flex-col items-center justify-center px-4 py-16 text-center">
+            <p className="text-xs font-medium text-muted-foreground">{t("noConversations")}</p>
           </div>
         ) : (
-          <div className="flex flex-col">
+          <div className="flex flex-col divide-y divide-border/30">
             {filtered.map((conv) => (
               <ConversationItem
                 key={conv.id}
@@ -454,12 +450,14 @@ function ConversationItem({
     <button
       onClick={handleClick}
       className={cn(
-        "flex w-full items-start gap-3 px-3 py-3 text-left transition-colors hover:bg-muted/50",
-        isActive && "border-l-2 border-primary bg-muted/70"
+        "group flex w-full items-center gap-3 px-3.5 py-3 text-left transition-all",
+        isActive
+          ? "border-l-[3px] border-primary bg-muted/80 shadow-2xs"
+          : "border-l-[3px] border-transparent hover:bg-muted/40"
       )}
     >
-      {/* Avatar */}
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-medium text-foreground">
+      {/* Avatar with soft ring */}
+      <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary ring-1 ring-border/60">
         {contact?.avatar_url ? (
           <img
             src={contact.avatar_url}
@@ -469,33 +467,38 @@ function ConversationItem({
         ) : (
           initials
         )}
+        <span
+          className={cn(
+            "absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full ring-2 ring-card",
+            STATUS_COLORS[conversation.status]
+          )}
+          title={conversation.status}
+        />
       </div>
 
       {/* Content */}
       <div className="min-w-0 flex-1">
         <div className="flex items-center justify-between gap-2">
-          <span className="truncate text-sm font-medium text-foreground">
+          <span className={cn(
+            "truncate text-xs font-semibold tracking-tight",
+            isActive ? "text-foreground" : "text-foreground/90 group-hover:text-foreground"
+          )}>
             {displayName}
           </span>
-          <span className="shrink-0 text-[10px] text-muted-foreground">{timeAgo}</span>
+          <span className="shrink-0 text-[10px] font-medium text-muted-foreground/80">
+            {timeAgo}
+          </span>
         </div>
-        <div className="mt-0.5 flex items-center justify-between gap-2">
-          <p className="truncate text-xs text-muted-foreground">
+        <div className="mt-1 flex items-center justify-between gap-2">
+          <p className="truncate text-[11px] text-muted-foreground leading-normal">
             {conversation.last_message_text || t("noMessagesYet")}
           </p>
           <div className="flex shrink-0 items-center gap-1.5">
             {conversation.unread_count > 0 && (
-              <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+              <span className="flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-foreground shadow-xs animate-in zoom-in-50">
                 {conversation.unread_count}
               </span>
             )}
-            <span
-              className={cn(
-                "h-2 w-2 rounded-full",
-                STATUS_COLORS[conversation.status]
-              )}
-              title={conversation.status}
-            />
           </div>
         </div>
       </div>

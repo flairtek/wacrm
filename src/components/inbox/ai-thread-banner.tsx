@@ -162,13 +162,15 @@ export function AiThreadBanner({
   // Active on this thread.
   return (
     <Banner tone="primary">
-      <div className="flex min-w-0 flex-1 items-center gap-1.5">
-        <Sparkles className="h-3.5 w-3.5 flex-shrink-0 text-primary" />
+      <div className="flex min-w-0 flex-1 items-center gap-2">
+        <span className="flex h-6 w-6 items-center justify-center rounded-md bg-status-ai/20 text-status-ai ring-1 ring-status-ai/30">
+          <Sparkles className="h-3.5 w-3.5" />
+        </span>
         <span className="truncate font-medium text-foreground">
           {t("activeText")}
         </span>
       </div>
-      <BannerButton onClick={() => toggle(true)} busy={busy} icon={Hand}>
+      <BannerButton onClick={() => toggle(true)} busy={busy} icon={Hand} variant="ai">
         {t("takeOver")}
       </BannerButton>
     </Banner>
@@ -185,10 +187,10 @@ function Banner({
   return (
     <div
       className={cn(
-        "flex items-center gap-3 border-b px-3 py-2 text-xs sm:px-4",
+        "flex items-center gap-3 border-b px-3.5 py-2.5 text-xs sm:px-4 transition-colors",
         tone === "primary"
-          ? "border-primary/20 bg-primary/5"
-          : "border-border bg-muted/40",
+          ? "border-status-ai/25 bg-status-ai/10 text-foreground"
+          : "border-border/80 bg-muted/40 text-foreground",
       )}
     >
       {children}
@@ -200,11 +202,13 @@ function BannerButton({
   onClick,
   busy,
   icon: Icon,
+  variant = "default",
   children,
 }: {
   onClick: () => void;
   busy: boolean;
   icon: typeof Hand;
+  variant?: "default" | "ai";
   children: React.ReactNode;
 }) {
   return (
@@ -212,12 +216,17 @@ function BannerButton({
       type="button"
       onClick={onClick}
       disabled={busy}
-      className="inline-flex flex-shrink-0 items-center gap-1 rounded-md border border-border bg-card px-2.5 py-1 font-medium text-foreground transition-colors hover:bg-muted disabled:opacity-60"
+      className={cn(
+        "inline-flex flex-shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold shadow-2xs transition-colors disabled:opacity-60",
+        variant === "ai"
+          ? "bg-status-ai/20 text-status-ai hover:bg-status-ai/30 border border-status-ai/30"
+          : "border border-border/80 bg-background text-foreground hover:bg-muted/70",
+      )}
     >
       {busy ? (
         <Loader2 className="h-3 w-3 animate-spin" />
       ) : (
-        <Icon className="h-3 w-3" />
+        <Icon className="h-3.5 w-3.5" />
       )}
       {children}
     </button>

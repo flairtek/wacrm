@@ -55,24 +55,26 @@ function failureReason(message: Message): string | null {
 function StatusIcon({
   status,
   title,
+  isAgent = true,
 }: {
   status: Message["status"];
   /** Tooltip for the failed state — Meta's reason, when we have one. */
   title?: string | null;
+  isAgent?: boolean;
 }) {
   switch (status) {
     case "sending":
-      return <Clock className="h-3 w-3 text-muted-foreground" />;
+      return <Clock className={cn("h-3 w-3", isAgent ? "text-primary-foreground/60" : "text-muted-foreground")} />;
     case "sent":
-      return <Check className="h-3 w-3 text-muted-foreground" />;
+      return <Check className={cn("h-3 w-3", isAgent ? "text-primary-foreground/75" : "text-muted-foreground")} />;
     case "delivered":
-      return <CheckCheck className="h-3 w-3 text-muted-foreground" />;
+      return <CheckCheck className={cn("h-3 w-3", isAgent ? "text-primary-foreground/75" : "text-muted-foreground")} />;
     case "read":
-      return <CheckCheck className="h-3 w-3 text-blue-400" />;
+      return <CheckCheck className={cn("h-3 w-3", isAgent ? "text-sky-300 dark:text-sky-400" : "text-sky-500")} />;
     case "failed":
       return (
         <span className="inline-flex" title={title ?? undefined}>
-          <XCircle className="h-3 w-3 text-red-400" />
+          <XCircle className="h-3 w-3 text-status-error" />
         </span>
       );
     default:

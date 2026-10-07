@@ -39,6 +39,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# superpowers / local scratch
+.superpowers/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

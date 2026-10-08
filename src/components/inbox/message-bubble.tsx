@@ -11,6 +11,7 @@ import {
   LayoutTemplate,
   CornerDownLeft,
   Sparkles,
+  AlertCircle,
 } from "lucide-react";
 import { format } from "date-fns";
 import { ReplyQuote } from "./reply-quote";
@@ -24,6 +25,10 @@ import {
 } from "./message-media";
 import { InteractivePreview } from "@/components/interactive/interactive-preview";
 import { useTranslations } from "next-intl";
+import {
+  cleanUnsupportedMessageText,
+  isUnsupportedMessageText,
+} from "@/lib/whatsapp/unsupported-message";
 
 interface MessageBubbleProps {
   message: Message;
@@ -99,12 +104,24 @@ function MessageContent({
   const openMedia = onOpenMedia ? () => onOpenMedia(message.id) : undefined;
 
   switch (message.content_type) {
-    case "text":
+    case "text": {
+      if (isUnsupportedMessageText(message.content_text)) {
+        const cleaned = cleanUnsupportedMessageText(message.content_text);
+        const displayText =
+          cleaned === "[Unsupported message]" ? t("unsupported") : cleaned;
+        return (
+          <div className="flex items-center gap-1.5 text-sm italic opacity-85">
+            <AlertCircle className="h-4 w-4 shrink-0 opacity-70" />
+            <span className="whitespace-pre-wrap break-words">{displayText}</span>
+          </div>
+        );
+      }
       return (
         <p className="whitespace-pre-wrap break-words text-sm">
           {message.content_text}
         </p>
       );
+    }
 
     case "image":
       return (
@@ -231,12 +248,19 @@ function MessageContent({
       );
     }
 
-    default:
+    default: {
+      const cleaned = cleanUnsupportedMessageText(message.content_text);
+      const displayText =
+        cleaned && cleaned !== "[Unsupported message]"
+          ? cleaned
+          : t("unsupported");
       return (
-        <p className="whitespace-pre-wrap break-words text-sm">
-          {message.content_text || t("unsupported")}
-        </p>
+        <div className="flex items-center gap-1.5 text-sm italic opacity-85">
+          <AlertCircle className="h-4 w-4 shrink-0 opacity-70" />
+          <span className="whitespace-pre-wrap break-words">{displayText}</span>
+        </div>
       );
+    }
   }
 }
 

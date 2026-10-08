@@ -247,7 +247,7 @@
       "template": "Plantilla",
       "buttonReply": "Respuesta de botón",
       "interactiveReply": "[Respuesta interactiva]",
-      "unsupported": "[Tipo de mensaje no compatible]",
+      "unsupported": "[Mensaje no compatible]",
       "aiBadge": "IA",
       "aiBadgeTitle": "Enviado automáticamente por el asistente de IA",
       "notDelivered": "No entregado",
@@ -288,6 +288,7 @@
       "voiceMessage": "[Mensaje de voz]",
       "location": "[Ubicación]",
       "template": "[Plantilla]",
+      "unsupported": "[Mensaje no compatible]",
       "message": "[Mensaje]",
       "cancelReply": "Cancelar respuesta"
     },

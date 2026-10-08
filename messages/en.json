@@ -247,7 +247,7 @@
       "template": "Template",
       "buttonReply": "Button reply",
       "interactiveReply": "[Interactive reply]",
-      "unsupported": "[Unsupported message type]",
+      "unsupported": "[Unsupported message]",
       "aiBadge": "AI",
       "aiBadgeTitle": "Sent automatically by the AI assistant",
       "notDelivered": "Not delivered",
@@ -288,6 +288,7 @@
       "voiceMessage": "[Voice message]",
       "location": "[Location]",
       "template": "[Template]",
+      "unsupported": "[Unsupported message]",
       "message": "[Message]",
       "cancelReply": "Cancel reply"
     },

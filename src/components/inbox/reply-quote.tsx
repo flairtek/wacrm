@@ -4,6 +4,10 @@ import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Message } from "@/types";
 import { useTranslations } from "next-intl";
+import {
+  cleanUnsupportedMessageText,
+  isUnsupportedMessageText,
+} from "@/lib/whatsapp/unsupported-message";
 
 interface ReplyQuoteProps {
   /** Sender label of the quoted message: "You" for our own messages,
@@ -82,7 +86,13 @@ export function ReplyQuote({
 
 /** Build the one-line preview text shown inside a reply quote. */
 export function buildReplyPreview(message: Message, t: ReturnType<typeof useTranslations>): string {
-  if (message.content_text) return message.content_text;
+  if (message.content_text) {
+    if (isUnsupportedMessageText(message.content_text)) {
+      const cleaned = cleanUnsupportedMessageText(message.content_text);
+      return cleaned === "[Unsupported message]" ? t("unsupported") : cleaned;
+    }
+    return message.content_text;
+  }
   switch (message.content_type) {
     case "image":
       return t("photo");

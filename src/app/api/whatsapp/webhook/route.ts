@@ -1,7 +1,7 @@
 import { NextResponse, after } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { decrypt, encrypt, isLegacyFormat } from '@/lib/whatsapp/encryption'
-import { getMediaUrl, downloadMedia } from '@/lib/whatsapp/meta-api'
+import { getMediaUrl } from '@/lib/whatsapp/meta-api'
 import { mirrorInboundMedia } from '@/lib/whatsapp/mirror-inbound-media'
 import { normalizePhone } from '@/lib/whatsapp/phone-utils'
 import {
@@ -22,6 +22,16 @@ import {
   handleTemplateWebhookChange,
   isTemplateWebhookField,
 } from '@/lib/whatsapp/template-webhook'
+import {
+  formatUnsupportedMessage,
+  formatContactCardMessage,
+  formatOrderMessage,
+  formatSystemMessage,
+  isUnsupportedMessageText,
+  type WhatsAppContactCard,
+  type WhatsAppOrder,
+  type WhatsAppSystem,
+} from '@/lib/whatsapp/unsupported-message'
 
 // The `after()` callback in POST runs within this route's max duration.
 // Inbound processing can fan out to per-media Meta verification calls, so
@@ -86,6 +96,15 @@ interface WhatsAppMessage {
    * payload and mirrors the label into it).
    */
   button?: { text?: string; payload?: string }
+  contacts?: WhatsAppContactCard[]
+  order?: WhatsAppOrder
+  system?: WhatsAppSystem
+  errors?: Array<{
+    code?: number
+    title?: string
+    message?: string
+    error_data?: { details?: string }
+  }>
   /** Present when the customer swipe-replies to one of our messages. */
   context?: { id: string }
 }
@@ -959,7 +978,12 @@ async function processMessage(
   // the account has enabled it. Awaited inside `after()` (same reason as
   // the webhook dispatch below); `dispatchInboundToAiReply` owns its
   // eligibility gates + try/catch and never throws.
-  if (!flowConsumed && !interactiveReplyId && inboundText.trim()) {
+  if (
+    !flowConsumed &&
+    !interactiveReplyId &&
+    inboundText.trim() &&
+    !isUnsupportedMessageText(inboundText)
+  ) {
     await dispatchInboundToAiReply({
       accountId,
       conversationId: conversation.id,
@@ -1185,10 +1209,45 @@ async function parseMessageContent(
       }
     }
 
+    case 'contacts':
+      return {
+        ...empty,
+        contentText: formatContactCardMessage(message.contacts),
+      }
+
+    case 'order':
+      return {
+        ...empty,
+        contentText: formatOrderMessage(message.order),
+      }
+
+    case 'system':
+      return {
+        ...empty,
+        contentText: formatSystemMessage(message.system),
+      }
+
+    case 'request_welcome':
+      return {
+        ...empty,
+        contentText: '👋 [Welcome requested]',
+      }
+
+    case 'unsupported': {
+      const errorDetail =
+        message.errors?.[0]?.error_data?.details ||
+        message.errors?.[0]?.message ||
+        null
+      return {
+        ...empty,
+        contentText: formatUnsupportedMessage('unsupported', errorDetail),
+      }
+    }
+
     default:
       return {
         ...empty,
-        contentText: `[Unsupported message type: ${message.type}]`,
+        contentText: formatUnsupportedMessage(message.type),
       }
   }
 }

@@ -21,6 +21,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { cleanUnsupportedMessageText } from "@/lib/whatsapp/unsupported-message";
 
 interface ConversationListProps {
   activeConversationId: string | null;
@@ -491,7 +492,9 @@ function ConversationItem({
         </div>
         <div className="mt-1 flex items-center justify-between gap-2">
           <p className="truncate text-[11px] text-muted-foreground leading-normal">
-            {conversation.last_message_text || t("noMessagesYet")}
+            {conversation.last_message_text
+              ? cleanUnsupportedMessageText(conversation.last_message_text)
+              : t("noMessagesYet")}
           </p>
           <div className="flex shrink-0 items-center gap-1.5">
             {conversation.unread_count > 0 && (

@@ -247,7 +247,7 @@
       "template": "템플릿",
       "buttonReply": "버튼 응답",
       "interactiveReply": "[인터랙티브 응답]",
-      "unsupported": "[지원되지 않는 메시지 형식]",
+      "unsupported": "[지원되지 않는 메시지]",
       "aiBadge": "AI",
       "aiBadgeTitle": "AI 어시스턴트가 자동으로 전송함",
       "notDelivered": "전송 실패",
@@ -288,6 +288,7 @@
       "voiceMessage": "[음성 메시지]",
       "location": "[위치]",
       "template": "[템플릿]",
+      "unsupported": "[지원되지 않는 메시지]",
       "message": "[메시지]",
       "cancelReply": "답장 취소"
     },

@@ -50,4 +50,20 @@ describe('buildConversationContext', () => {
     )
     expect(out).toEqual([{ role: 'user', content: 'real' }])
   })
+
+  it('filters out unsupported message placeholders from AI context', async () => {
+    const out = await buildConversationContext(
+      fakeDb([
+        { sender_type: 'customer', content_text: 'What is the price?' },
+        { sender_type: 'customer', content_text: '[Unsupported message type: unsupported]' },
+        { sender_type: 'customer', content_text: '[Unsupported message]' },
+        { sender_type: 'customer', content_text: 'Hello' },
+      ]),
+      'conv-1',
+    )
+    expect(out).toEqual([
+      { role: 'user', content: 'Hello' },
+      { role: 'user', content: 'What is the price?' },
+    ])
+  })
 })
